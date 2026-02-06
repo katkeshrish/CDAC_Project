@@ -49,17 +49,29 @@ module Module_Wrapper (
         .SS_data_out(ss_data_bus)
     );
 
-    // 4. Instantiate FIFOs (Tx and SS)
-    FIFO_Counter tx_fifo_inst (
-        .clk(ACLK), .rst_n(ARESETN),
-        .data(tx_data_bus), .wr_en(wr_en), .rd_en(rd_en),
-        .data_out(fifo_tx_out), .full(tx_full), .empty(tx_empty)
+// 4. Instantiate FIFOs (Tx and SS) with Asynchronous Support
+    Async_Tx_FIFO tx_fifo_inst (
+        .ACLK(ACLK),          // AXI Clock for writing [cite: 18]
+        .SCLK(sclk_int),      // Divided SPI Clock for reading [cite: 18]
+        .rst_n(ARESETN),      // Asynchronous Reset [cite: 18]
+        .data_in(tx_data_bus),// Matches data_in port [cite: 18]
+        .wr_en(wr_en),        // From AXI_SLAVE [cite: 91]
+        .rd_en(rd_en),        // From SPI_MASTER [cite: 96]
+        .data_out(fifo_tx_out),
+        .full(tx_full),
+        .empty(tx_empty)
     );
-    
-    FIFO_Counter ss_fifo_inst (
-        .clk(ACLK), .rst_n(ARESETN),
-        .data(ss_data_bus), .wr_en(wr_en), .rd_en(rd_en),
-        .data_out(fifo_ss_out), .full(ss_full), .empty(ss_empty)
+
+    Async_SS_FIFO ss_fifo_inst (
+        .ACLK(ACLK),          // AXI Clock [cite: 1]
+        .SCLK(sclk_int),      // SPI Clock [cite: 1]
+        .rst_n(ARESETN),
+        .data_in(ss_data_bus),// Matches data_in port [cite: 1]
+        .wr_en(wr_en),
+        .rd_en(rd_en),
+        .data_out(fifo_ss_out),
+        .full(ss_full),
+        .empty(ss_empty)
     );
 
     // 5. Instantiate FIFO_MANAGER
